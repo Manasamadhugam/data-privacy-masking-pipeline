@@ -1,0 +1,15 @@
+# Python cache
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Virtual environments
+venv/
+.env/
+
+# Generated datasets
+data/*.csv
+
+# Generated logs and reports
+logs/*.csv
+reports/*.csv
