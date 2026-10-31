@@ -1,0 +1,6 @@
+customer_id,full_name,email,phone,date_of_birth,city
+C000001,Priya Sharma,customer1@example.com,9000000001,1987-04-08,Warangal
+C000002,Priya Naidu,customer2@example.com,9000000002,1975-10-14,Hyderabad
+C000003,Rahul Reddy,customer3@example.com,9000000003,1983-04-17,Khammam
+C000004,Rahul Naidu,customer4@example.com,9000000004,1982-12-21,Khammam
+C000005,Arjun Rao,customer5@example.com,9000000005,1998-10-09,Hyderabad

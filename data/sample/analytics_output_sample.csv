@@ -1,0 +1,6 @@
+full_name,email,phone,city,customer_id_token,order_count,total_spend,last_order_date
+P**** S*****,c********@example.com,******0001,Warangal,CUST_602DCF01D26C,3,10943.33,2026-08-03
+P**** N****,c********@example.com,******0002,Hyderabad,CUST_C5CC2BF08B32,1,9561.97,2026-10-28
+R**** R****,c********@example.com,******0003,Khammam,CUST_58639DB0093F,2,11395.91,2026-06-17
+R**** N****,c********@example.com,******0004,Khammam,CUST_3351E7232FE4,2,7889.35,2026-10-01
+A**** R**,c********@example.com,******0005,Hyderabad,CUST_87CFEBD33F24,0,0.0,
