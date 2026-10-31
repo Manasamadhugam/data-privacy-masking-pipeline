@@ -54,8 +54,6 @@
 
 |---|---|---|
 
-| customer\_id | String | Customer identifier |
-
 | full\_name | String | Masked customer name |
 
 | email | String | Masked email address |
@@ -64,11 +62,17 @@
 
 | city | String | Customer city |
 
+| customer\_id\_token | String | Deterministic SHA-256-based pseudonymous customer identifier |
+
 | order\_count | Integer | Total number of orders |
 
 | total\_spend | Float | Total amount spent |
 
 | last\_order\_date | Date | Most recent order date |
+
+
+
+\*\*Note:\*\* Original `customer\_id` and `date\_of\_birth` are excluded from the final analytics output.
 
 
 
@@ -90,13 +94,19 @@
 
 
 
-\- Customer names are masked.
+\- Customer names are partially masked.
 
 \- Email usernames are masked.
 
-\- Phone numbers are partially masked.
+\- Phone numbers are masked except for the last four digits.
+
+\- Customer IDs are pseudonymized using deterministic SHA-256 hashing.
 
 \- Date of birth is excluded from the analytics output.
 
 \- Only synthetic data is used in this project.
+
+
+
+\*\*Limitation:\*\* SHA-256-based pseudonymization is not reversible tokenization and does not use a secret key.
 
