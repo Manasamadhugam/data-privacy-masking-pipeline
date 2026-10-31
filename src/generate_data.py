@@ -46,7 +46,7 @@ def generate_data(number_of_customers=1000):
             "customer_id": f"C{i:06d}",
             "full_name": f"{first} {last}",
             "email": f"customer{i}@example.com",
-            "phone": f"90000{i:05d}",
+            "phone": f"9{i:09d}",
             "date_of_birth": (
                 f"{random.randint(1970, 2002)}-"
                 f"{random.randint(1, 12):02d}-"
