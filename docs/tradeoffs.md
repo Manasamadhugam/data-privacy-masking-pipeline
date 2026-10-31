@@ -90,3 +90,21 @@ Record reconciliation verifies that input records are accounted for as valid or 
 
 \- The current implementation is a demonstration project, not a complete production-grade privacy solution.
 
+
+
+\### 10. Idempotency, Retry, Restart, and Backfill
+
+
+
+\- The pipeline uses CSV output files and overwrites previous output files during each execution instead of appending duplicate records.
+
+\- Running the pipeline again with the same input produces a fresh output.
+
+\- The pipeline currently supports a full rerun from the beginning.
+
+\- Automatic retry, checkpoint-based restart, and partial-failure recovery are not implemented.
+
+\- For backfill, the required historical input data can be processed again by running the pipeline with that input.
+
+\- Audit logs maintain execution details for each pipeline run.
+
