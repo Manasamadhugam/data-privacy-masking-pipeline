@@ -1,3 +1,4 @@
+
 import pandas as pd
 from pathlib import Path
 
@@ -16,7 +17,7 @@ SENSITIVE_FIELDS = [
 
 def profile_data(customers_df, orders_df):
 
-    REPORT_DIR.mkdir(exist_ok=True)
+    REPORT_DIR.mkdir(parents=True, exist_ok=True)
 
     datasets = {
         "customers": customers_df,

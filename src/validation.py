@@ -1,11 +1,8 @@
 
 import pandas as pd
-import re
 
 
-# Schema validation function
 def check_required_columns(df, required_columns, dataset_name):
-
     missing_columns = [
         column for column in required_columns
         if column not in df.columns
@@ -18,10 +15,8 @@ def check_required_columns(df, required_columns, dataset_name):
         )
 
 
-# Validate customer records
 def validate_customers(customers_df):
 
-    # Step 1: Check required columns
     required_schema = [
         "customer_id",
         "full_name",
@@ -40,7 +35,45 @@ def validate_customers(customers_df):
     valid_customers = customers_df.copy()
     rejected = []
 
-    # Step 2: Check duplicate customer IDs
+    # Step 1: Normalize text columns
+    text_columns = [
+        "customer_id",
+        "full_name",
+        "email",
+        "phone",
+        "city"
+    ]
+
+    for column in text_columns:
+        valid_customers[column] = (
+            valid_customers[column].astype("string").str.strip()
+        )
+
+    # Step 2: Check missing and empty values
+    required_columns = [
+        "customer_id",
+        "full_name",
+        "email",
+        "phone",
+        "city",
+        "date_of_birth"
+    ]
+
+    for column in required_columns:
+        missing = (
+            valid_customers[column].isna()
+            | valid_customers[column].eq("")
+        )
+
+        for _, row in valid_customers[missing].iterrows():
+            rejected.append({
+                "record_id": row["customer_id"],
+                "reason": f"Missing value in {column}"
+            })
+
+        valid_customers = valid_customers[~missing]
+
+    # Step 3: Check duplicate customer IDs
     duplicate_ids = valid_customers[
         valid_customers.duplicated(
             subset=["customer_id"],
@@ -59,34 +92,27 @@ def validate_customers(customers_df):
         keep="first"
     )
 
-    # Step 3: Check missing values
-    required_columns = [
-        "customer_id",
-        "full_name",
-        "email",
-        "phone",
-        "city"
-    ]
+    # Step 4: Check customer ID format
+    valid_id = valid_customers["customer_id"].str.fullmatch(
+        r"C\d{3,}",
+        na=False
+    )
 
-    for column in required_columns:
-        missing = valid_customers[column].isna()
+    for _, row in valid_customers[~valid_id].iterrows():
+        rejected.append({
+            "record_id": row["customer_id"],
+            "reason": "Invalid customer ID format"
+        })
 
-        for _, row in valid_customers[missing].iterrows():
-            rejected.append({
-                "record_id": row["customer_id"],
-                "reason": f"Missing value in {column}"
-            })
+    valid_customers = valid_customers[valid_id]
 
-        valid_customers = valid_customers.dropna(
-            subset=[column]
-        )
+    # Step 5: Check email format
+    email_pattern = r"^[\w.-]+@[\w.-]+\.\w+$"
 
-    # Step 4: Check email format
-    email_pattern = r"^[\w\.-]+@[\w\.-]+\.\w+$"
-
-    valid_email = valid_customers["email"].astype(
-        str
-    ).str.match(email_pattern)
+    valid_email = valid_customers["email"].str.fullmatch(
+        email_pattern,
+        na=False
+    )
 
     for _, row in valid_customers[~valid_email].iterrows():
         rejected.append({
@@ -96,13 +122,47 @@ def validate_customers(customers_df):
 
     valid_customers = valid_customers[valid_email]
 
+    # Step 6: Check phone number
+    valid_phone = valid_customers["phone"].str.fullmatch(
+        r"\d{10}",
+        na=False
+    )
+
+    for _, row in valid_customers[~valid_phone].iterrows():
+        rejected.append({
+            "record_id": row["customer_id"],
+            "reason": "Invalid phone number"
+        })
+
+    valid_customers = valid_customers[valid_phone]
+
+    # Step 7: Check date of birth
+    valid_dob = pd.to_datetime(
+        valid_customers["date_of_birth"],
+        format="%Y-%m-%d",
+        errors="coerce"
+    )
+
+    today = pd.Timestamp.today().normalize()
+
+    invalid_dob = (
+        valid_dob.isna()
+        | (valid_dob >= today)
+    )
+
+    for _, row in valid_customers[invalid_dob].iterrows():
+        rejected.append({
+            "record_id": row["customer_id"],
+            "reason": "Invalid date of birth"
+        })
+
+    valid_customers = valid_customers[~invalid_dob]
+
     return valid_customers, rejected
 
 
-# Validate order records
 def validate_orders(orders_df, valid_customer_ids):
 
-    # Step 1: Check required columns
     required_schema = [
         "order_id",
         "customer_id",
@@ -119,7 +179,35 @@ def validate_orders(orders_df, valid_customer_ids):
     valid_orders = orders_df.copy()
     rejected = []
 
-    # Step 2: Check duplicate order IDs
+    # Step 1: Normalize text columns
+    for column in ["order_id", "customer_id", "order_date"]:
+        valid_orders[column] = (
+            valid_orders[column].astype("string").str.strip()
+        )
+
+    # Step 2: Check missing and empty values
+    required_columns = [
+        "order_id",
+        "customer_id",
+        "order_date",
+        "order_amount"
+    ]
+
+    for column in required_columns:
+        missing = (
+            valid_orders[column].isna()
+            | valid_orders[column].eq("")
+        )
+
+        for _, row in valid_orders[missing].iterrows():
+            rejected.append({
+                "record_id": row["order_id"],
+                "reason": f"Missing value in {column}"
+            })
+
+        valid_orders = valid_orders[~missing]
+
+    # Step 3: Check duplicate order IDs
     duplicate_ids = valid_orders[
         valid_orders.duplicated(
             subset=["order_id"],
@@ -138,28 +226,21 @@ def validate_orders(orders_df, valid_customer_ids):
         keep="first"
     )
 
-    # Step 3: Check missing values
-    required_columns = [
-        "order_id",
-        "customer_id",
-        "order_date",
-        "order_amount"
-    ]
+    # Step 4: Check order ID format
+    valid_id = valid_orders["order_id"].str.fullmatch(
+        r"O\d{3,}",
+        na=False
+    )
 
-    for column in required_columns:
-        missing = valid_orders[column].isna()
+    for _, row in valid_orders[~valid_id].iterrows():
+        rejected.append({
+            "record_id": row["order_id"],
+            "reason": "Invalid order ID format"
+        })
 
-        for _, row in valid_orders[missing].iterrows():
-            rejected.append({
-                "record_id": row["order_id"],
-                "reason": f"Missing value in {column}"
-            })
+    valid_orders = valid_orders[valid_id]
 
-        valid_orders = valid_orders.dropna(
-            subset=[column]
-        )
-
-    # Step 4: Check order amount
+    # Step 5: Check order amount
     valid_orders["order_amount"] = pd.to_numeric(
         valid_orders["order_amount"],
         errors="coerce"
@@ -178,7 +259,7 @@ def validate_orders(orders_df, valid_customer_ids):
 
     valid_orders = valid_orders[~invalid_amount]
 
-    # Step 5: Check customer relationship
+    # Step 6: Check customer relationship
     invalid_customer = ~valid_orders[
         "customer_id"
     ].isin(valid_customer_ids)
@@ -191,21 +272,21 @@ def validate_orders(orders_df, valid_customer_ids):
 
     valid_orders = valid_orders[~invalid_customer]
 
-    # Step 6: Check order date format
+    # Step 7: Check order date
     valid_dates = pd.to_datetime(
         valid_orders["order_date"],
         format="%Y-%m-%d",
         errors="coerce"
-    ).notna()
+    )
 
-    for _, row in valid_orders[~valid_dates].iterrows():
+    invalid_date = valid_dates.isna()
+
+    for _, row in valid_orders[invalid_date].iterrows():
         rejected.append({
             "record_id": row["order_id"],
             "reason": "Invalid order date"
         })
 
-    valid_orders = valid_orders[valid_dates]
+    valid_orders = valid_orders[~invalid_date]
 
     return valid_orders, rejected
-
-

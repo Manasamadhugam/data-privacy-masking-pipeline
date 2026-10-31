@@ -8,13 +8,38 @@ DATA_DIR = PROJECT_ROOT / "data"
 
 
 def load_data():
+
     customers_file = DATA_DIR / "customers.csv"
     orders_file = DATA_DIR / "orders.csv"
 
-    customers_df = pd.read_csv(customers_file)
-    orders_df = pd.read_csv(orders_file)
+    if not customers_file.exists():
+        raise FileNotFoundError(
+            f"Customers file not found: {customers_file}"
+        )
+
+    if not orders_file.exists():
+        raise FileNotFoundError(
+            f"Orders file not found: {orders_file}"
+        )
+
+    customers_df = pd.read_csv(
+        customers_file,
+        dtype={
+            "customer_id": "string",
+            "phone": "string"
+        }
+    )
+
+    orders_df = pd.read_csv(
+        orders_file,
+        dtype={
+            "order_id": "string",
+            "customer_id": "string"
+        }
+    )
 
     print("Data loaded successfully!")
+
     print("\nCustomers Data:")
     print(customers_df.head())
 
