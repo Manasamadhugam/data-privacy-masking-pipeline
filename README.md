@@ -42,7 +42,6 @@ This project addresses the problem by masking sensitive fields, generating pseud
 
 ## 5. Project Structure
 
-```text
 data-privacy-masking-pipeline/
 │
 ├── data/
@@ -55,6 +54,7 @@ data-privacy-masking-pipeline/
 ├── reports/
 │
 ├── src/
+│   ├── __init__.py
 │   ├── generate_data.py
 │   ├── ingestion.py
 │   ├── profiling.py
@@ -64,13 +64,15 @@ data-privacy-masking-pipeline/
 │   └── audit.py
 │
 ├── tests/
+│   ├── test_masking.py
+│   ├── test_reconciliation.py
+│   └── test_validation.py
+│
 ├── config.py
 ├── main.py
 ├── requirements.txt
 ├── .gitignore
 └── README.md
-```
-
 ## 6. Pipeline Workflow
 
 1. Generate synthetic customer and order datasets.
@@ -175,7 +177,7 @@ One successful local execution processed:
 | Total input records | 300,000 |
 | Analytics output records | 100,000 |
 | Rejected records | 0 |
-| Execution time | 3.17 seconds |
+| Execution time |2.89 seconds |
 
 Performance may vary depending on the machine and execution environment.
 
@@ -193,7 +195,7 @@ The project includes automated tests for:
 - Record reconciliation.
 - Masking functions.
 
-The existing test suite has passed **21 tests**.
+The existing test suite has passed **24 tests**.
 
 ## 14. Documentation
 
